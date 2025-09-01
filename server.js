@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 5000;
 
 // WARNING: You shared your full connection string. For production, use environment variables.
 // Using it directly here as requested.
-const MONGODB_URI = 'mongodb+srv://lathika25:lathikapassword@cluster0.gpcfhil.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+const MONGODB_URI = process.env.MONGODB_URI;
 
 app.use(cors());
 app.use(express.json());
