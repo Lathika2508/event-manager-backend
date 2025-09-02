@@ -1,4 +1,3 @@
-
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
@@ -9,26 +8,31 @@ import Event from './models/Event.js';
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// WARNING: You shared your full connection string. For production, use environment variables.
-// Using it directly here as requested.
+// Use environment variable for MongoDB connection
 const MONGODB_URI = process.env.MONGODB_URI;
 
-app.use(cors());
-app.use(express.json());
-app.use(morgan('dev'));
+// Middleware
+app.use(cors()); // Allow cross-origin requests
+app.use(express.json()); // Parse JSON request bodies
+app.use(morgan('dev')); // Logging HTTP requests
 
 // Connect to MongoDB
 mongoose
-  .connect(MONGODB_URI, {
-    dbName: 'app'
-  })
+  .connect(MONGODB_URI, { dbName: 'app' })
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => {
     console.error('MongoDB connection error:', err.message);
     process.exit(1);
   });
 
-// Routes
+// ===== Root route for testing =====
+app.get('/', (req, res) => {
+  res.send('Backend is running!');
+});
+
+// ===== API Routes =====
+
+// Get all events
 app.get('/api/events', async (req, res) => {
   try {
     const events = await Event.find().sort({ date: 1 });
@@ -38,6 +42,7 @@ app.get('/api/events', async (req, res) => {
   }
 });
 
+// Create a new event
 app.post('/api/events', async (req, res) => {
   try {
     const { title, description, date, location } = req.body;
@@ -48,6 +53,7 @@ app.post('/api/events', async (req, res) => {
   }
 });
 
+// Update an existing event
 app.put('/api/events/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -64,6 +70,7 @@ app.put('/api/events/:id', async (req, res) => {
   }
 });
 
+// Delete an event
 app.delete('/api/events/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -75,4 +82,5 @@ app.delete('/api/events/:id', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+// Start the server
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
