@@ -2,13 +2,15 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import morgan from 'morgan';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 import Event from './models/Event.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Use environment variable for MongoDB connection
+// MongoDB connection
 const MONGODB_URI = process.env.MONGODB_URI;
 
 // Middleware
@@ -24,11 +26,6 @@ mongoose
     console.error('MongoDB connection error:', err.message);
     process.exit(1);
   });
-
-// ===== Root route for testing =====
-app.get('/', (req, res) => {
-  res.send('Backend is running!');
-});
 
 // ===== API Routes =====
 
@@ -80,6 +77,22 @@ app.delete('/api/events/:id', async (req, res) => {
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
+});
+
+// ===== Serve React frontend =====
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+app.use(express.static(path.join(__dirname, 'build')));
+
+// Root route (also works if React frontend is served)
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
+
+// Catch-all route to support React Router
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
 
 // Start the server
